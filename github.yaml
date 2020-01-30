@@ -102,6 +102,51 @@ systems:
                       org: testing
                       name: testing-repo
 
+      createPullRequest:
+        target:
+          system: github
+          function: api
+        parameters:
+          URL: 'https://api.github.com/repos/{{ .ctx.org }}/{{ .ctx.name }}/pulls'
+          method: POST
+          content:
+            title: $ctx.title
+            head: $ctx.head_branch
+            base: $ctx.bas_branch
+            body: $ctx.body_message
+
+        description: >
+          This function will create a pull request for a respository in your org
+
+        meta:
+          inputs:
+            - name: org
+              description: the name of your org
+            - name: name
+              description: The name of your repository
+
+          notes:
+            - See below for example
+            - example: |
+                ---
+                rules:
+                  - when:
+                      driver: webhook
+                      if_match:
+                        url: /createPullRequest
+                    do:
+                      call_workflow: github_create_pull_request
+
+                workflows:
+                  github_create_repo:
+                    call_function: github.createPullRequest
+                    with:
+                      org: testing
+                      name: testing-repo
+                      head_branch: test-branch
+                      base_branch: staging
+                      body: "Auto generated PR"
+
       addRepoToInstallation:
         target:
           system: github
