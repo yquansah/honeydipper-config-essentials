@@ -58,6 +58,32 @@ contexts:
             - name: BRANCH
               value: '{{ default "" .ctx.git_ref }}'
 
+        git-commit-push-upstream:
+          name: git-commit-push-upstream
+          type: git
+          shell: "@:resources/git-commit-push-upstream.sh"
+          volumes:
+            - mountPath: /root/id_rsa
+              subPath: id_rsa
+              volume:
+                name: git-deploy-key-one
+                secret:
+                  defaultMode: 384
+                  secretName: "{{ default `{{ .sysData.git_key_secret }}` .ctx.git_key_secret }}"
+          env:
+            - name: BRANCH
+              value: '{{ default "" .ctx.git_ref }}'
+            - name: COMMIT_MESSAGE
+              value: '{{ default "automated" .ctx.git_commit_message }}'
+            - name: EMAIL
+              value: '{{ default "default@joinhoney.com" .ctx.git_email }}'
+            - name: FILES_TO_ADD
+              value: '{{ default "." .ctx.git_files_to_add }}'
+            - name: FULL_NAME
+              value: '{{ default "Default" .ctx.git_full_name }}'
+            - name: HEAD_BRANCH_NAME
+              value: '{{ default "default_branch" .ctx.git_branch_name }}'
+            
         local_kubeconfig:
           name: set-kube-local
           type: bash
